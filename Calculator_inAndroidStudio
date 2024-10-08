@@ -1,0 +1,112 @@
+package com.example.calculator;
+
+import androidx.appcompat.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+public class MainActivity extends AppCompatActivity {
+
+    private TextView display;
+    private double firstNumber = 0;
+    private double secondNumber = 0;
+    private String operator = "";
+    private boolean isOperatorPressed = false;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        display = findViewById(R.id.display);
+
+        // Set digit buttons
+        setNumericButtonListeners();
+
+        // Set operator buttons
+        setOperatorButtonListeners();
+    }
+
+    // Handles all digit button clicks
+    private void setNumericButtonListeners() {
+        int[] numericButtonIds = {R.id.btn0, R.id.btn1, R.id.btn2, R.id.btn3, R.id.btn4, R.id.btn5, R.id.btn6, R.id.btn7, R.id.btn8, R.id.btn9, R.id.btnDecimal};
+        View.OnClickListener listener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Button b = (Button) view;
+                if (isOperatorPressed) {
+                    display.setText("");  // Clear display after operator is pressed
+                    isOperatorPressed = false;
+                }
+                String currentText = display.getText().toString();
+                display.setText(currentText + b.getText());
+            }
+        };
+        for (int id : numericButtonIds) {
+            findViewById(id).setOnClickListener(listener);
+        }
+    }
+
+    // Handles all operator button clicks (+, -, *, /, =, C)
+    private void setOperatorButtonListeners() {
+        int[] operatorButtonIds = {R.id.btnAdd, R.id.btnSubtract, R.id.btnMultiply, R.id.btnDivide, R.id.btnEquals, R.id.btnClear};
+        View.OnClickListener listener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Button b = (Button) view;
+                switch (b.getText().toString()) {
+                    case "C":
+                        clearCalculator();
+                        break;
+                    case "=":
+                        calculateResult();
+                        break;
+                    default:
+                        operator = b.getText().toString();
+                        firstNumber = Double.parseDouble(display.getText().toString());
+                        isOperatorPressed = true;
+                        break;
+                }
+            }
+        };
+        for (int id : operatorButtonIds) {
+            findViewById(id).setOnClickListener(listener);
+        }
+    }
+
+    // Perform calculation based on operator
+    private void calculateResult() {
+        secondNumber = Double.parseDouble(display.getText().toString());
+        double result = 0;
+        switch (operator) {
+            case "+":
+                result = firstNumber + secondNumber;
+                break;
+            case "-":
+                result = firstNumber - secondNumber;
+                break;
+            case "*":
+                result = firstNumber * secondNumber;
+                break;
+            case "/":
+                if (secondNumber != 0) {
+                    result = firstNumber / secondNumber;
+                } else {
+                    display.setText("Error");
+                    return;
+                }
+                break;
+        }
+        display.setText(String.valueOf(result));
+    }
+
+    // Clear the display and reset all variables
+    private void clearCalculator() {
+        display.setText("0");
+        firstNumber = 0;
+        secondNumber = 0;
+        operator = "";
+        isOperatorPressed = false;
+    }
+}
